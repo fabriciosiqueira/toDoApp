@@ -59,3 +59,8 @@ export const DeleteButtonText = styled.Text`
 
 `;
 
+export const TrocarStatus = styled.Switch``;
+
+export const TrocarStatusView = styled.View``;
+
+

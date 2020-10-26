@@ -1,16 +1,30 @@
-import React from 'react';
+
+import React, {useState,useEffect, useLayoutEffect} from 'react';
+
+//Acessar dados
+import { useSelector, useDispatch} from 'react-redux';
+
 import { 
     Box,
-    Title
+    Title,
+    MarcarArea,
+    BoxView
 } from './styles';
 
 
 export default ({data, index, onPress}) => {
-    return (
+   
+
+    
+
+    return (   
         <Box onPress={()=>onPress(index)}>
-            <Title>
-                {data.title}
-            </Title>
+            <BoxView>
+                <Title>
+                    {data.item}
+                </Title>
+            </BoxView>
         </Box>
     );
 }
+

@@ -1,8 +1,8 @@
-import React, {useLayoutEffect} from 'react';
+import React, {useState,useEffect, useLayoutEffect} from 'react';
 import { useNavigation } from '@react-navigation/native';
 
 //Acessar dados
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch} from 'react-redux';
 
 import {
     Container,
@@ -18,13 +18,36 @@ import {
 //Import de componentes personalizados
 import TodoItem from '../../components/TodoItem';
 
+const API_URL = "https://b7web.com.br/todo/73986";
+
 export default () => {
+
+   
+
     
+
+    //Hooks
     const navigation = useNavigation();
     const list = useSelector(state => state.todo.list);
+    const dispatch = useDispatch();
+
     
-    
-    //console.log("list",list)
+
+    useEffect(()=>{
+        fetch(API_URL)
+        .then((r)=>r.json())
+        .then((json)=>{
+            
+            dispatch({
+                type: 'LIST_AFAZER',
+                payload:{
+                    list:json.todo
+                }
+            });
+
+        })
+    }, [list]);
+
     useLayoutEffect(()=>{
         navigation.setOptions({
             title:'Seus Afazeres',
@@ -36,12 +59,15 @@ export default () => {
         })
     }, []);
 
+    
+    
     const handleTodoPress = (index) => {
         console.log(index);
         navigation.navigate('EditTodo', {
-            key: index
+            key: index,
         });
     }
+
 
     return (
         <Container>

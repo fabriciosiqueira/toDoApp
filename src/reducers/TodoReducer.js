@@ -13,8 +13,7 @@ export default (state = initialState, action) => {
         case 'ADD_AFAZER':
 
             newList.push({
-                title:action.payload.title,
-                body:action.payload.body,
+                title:action.payload.item,
             })
             
         break;
@@ -22,15 +21,20 @@ export default (state = initialState, action) => {
 
             if(newList[action.payload.key]){
                 newList[action.payload.key] = {
-                    title:action.payload.title,
-                    body:action.payload.body,
+                    item:action.payload.item,
                 };
             }
             
         break;
+        break;
         case 'DEL_AFAZER':
 
             newList = newList.filter((item, index)=>index != action.payload.key);
+            
+        break;
+        case 'LIST_AFAZER':
+
+            newList = action.payload.list;
             
         break;
 

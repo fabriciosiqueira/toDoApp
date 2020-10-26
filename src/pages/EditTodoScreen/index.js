@@ -11,8 +11,11 @@ import {
     CloseButton,
     CloseButtonImage,
     DeleteButton,
-    DeleteButtonText
+    DeleteButtonText,
+    TrocarStatus
 } from './styles';
+
+const API_URL = "https://b7web.com.br/todo/73986";
 
 export default () => {
 
@@ -21,19 +24,16 @@ export default () => {
     const route = useRoute();
     const dispatch = useDispatch();
     const list = useSelector( state => state.todo.list );
-    //console.log("list",list)
+    
 
     //states
-    const [title, setTitle] = useState('');
-    const [body, setBody] = useState('');
+    const [item, setItem] = useState('');
     const [status, setStatus] = useState('new');
-
 
     useEffect(()=> {
         if(route.params?.key != undefined && list[route.params.key]) {
             setStatus('edit');
-            setTitle(list[route.params.key].title);
-            setBody(list[route.params.key].body);
+            setItem(list[route.params.key].item);
         }
     }, []);
 
@@ -51,27 +51,62 @@ export default () => {
                 </SaveButton>
             )
         });
-    }, [status, title, body]);
+    }, [status, item]);
 
     const handleSaveButton = () => {
-        if(title != "") {
+        if(item != "") {
             if(status == "edit") {
                 dispatch({
                     type:"EDIT_AFAZER",
                     payload: {
                         key: route.params.key,
-                        title,
-                        body
+                        item,
+                        
                     }
                 });
+                fetch(API_URL + "/" + list[route.params.key].id, {
+                    method:'PUT',
+                    headers:{
+                        'Accept':'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body:JSON.stringify({
+                        item
+                    })
+                })
+                .then((r)=>r.json())
+                .then((json)=>{
+                    refreshList();
+                }) 
+
             } else {
+
+                //Storage
                 dispatch({
                     type:"ADD_AFAZER",
                     payload: {
-                        title,
-                        body
+                        item
+                        
                     }
                 });
+
+                //ADD na API
+                fetch(API_URL, {
+                    method:'POST',
+                    headers:{
+                        'Accept':'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body:JSON.stringify({
+                        item
+                    })
+                })
+                .then((r)=>r.json())
+                .then((json)=>{
+                    console.log("Added item",json.todo)
+                    refreshList();
+                })    
+
             }
             navigation.goBack();
 
@@ -79,6 +114,8 @@ export default () => {
             alert('Preencha o Titulo');
         }
     }
+
+   
 
     const handleCloseButton = () => {
         navigation.goBack();
@@ -92,35 +129,59 @@ export default () => {
             }
         });
 
+        fetch(API_URL + "/" + list[route.params.key].id, {
+            method:'DELETE',
+            headers:{
+                'Accept':'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then((r)=>r.json())
+        .then((json)=>{
+            refreshList();
+        })
+
+
         navigation.goBack();
+    }
+
+    const refreshList = () => {
+        fetch(API_URL)
+        .then((r)=>r.json())
+        .then((json)=>{
+            
+            dispatch({
+                type: 'LIST_AFAZER',
+                payload:{
+                    list:json.todo
+                }
+            });
+
+        })
     }
 
     return (
         <Container>
            <TitleInput 
-                value={title}
-                onChangeText={t=>setTitle(t)}
+                value={item}
+                onChangeText={t=>setItem(t)}
                 placeholder="Digite o titulo da Tarefa"
                 placeholderTextColor="#CCC"
                 autoFocus={true}
            />
-           <BodyInput
-                value={body}
-                onChangeText={t=>setBody(t)}
-                placeholder="Digite os detalhes da Tarefa"
-                placeholderTextColor="#FFF"  
-                multiline={true}
-                textAlignVertical='top'
            
-           />
            {status == 'edit' &&
+                
+
                 <DeleteButton underlayColor='#FF0000'  onPress={handleDeleteButton}>
                     <DeleteButtonText>
-                        Afazer Finalizado - Excluir da Lista
+                        Excluir
                     </DeleteButtonText>
                 </DeleteButton>
 
+              
            }
         </Container>
     );
 }
+
